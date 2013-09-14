@@ -1,0 +1,7 @@
+parameters:
+#    spark_spark_touch.example.class: Spark\Bundle\SparkTouchBundle\Example
+
+services:
+#    spark_spark_touch.example:
+#        class: %spark_spark_touch.example.class%
+#        arguments: [@service_id, "plain_value", %parameter%]

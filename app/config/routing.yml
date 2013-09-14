@@ -1,0 +1,12 @@
+spark_spark_touch:
+    resource: "@SparkSparkTouchBundle/Resources/config/routing.yml"
+    prefix:   /
+
+spark_olymp_rgb:
+    resource: "@SparkOlympRGBBundle/Controller/"
+    type:     annotation
+    prefix:   /
+
+NelmioApiDocBundle:
+    resource: "@NelmioApiDocBundle/Resources/config/routing.yml"
+    prefix:   /api/doc
