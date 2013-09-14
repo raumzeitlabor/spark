@@ -1,3 +1,3 @@
 spark_spark_touch_homepage:
-    pattern:  /hello/{name}
+    pattern:  /
     defaults: { _controller: SparkSparkTouchBundle:Default:index }
