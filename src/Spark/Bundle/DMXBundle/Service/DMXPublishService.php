@@ -65,6 +65,8 @@ class DMXPublishService implements ConsumerInterface {
 
         $this->logger->debug($cmd);
 
+        exec($cmd);
+
         return array(123);
     }
 }
