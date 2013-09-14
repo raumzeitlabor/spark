@@ -59,7 +59,7 @@ class DMXPublishService implements ConsumerInterface {
 
         $cmdTemplate = 'ola_set_dmx -u 0 --dmx %s';
 
-        $channelValues = array($this->olympRed, $this->olympGreen, $this->olympBlue);
+        $channelValues = array($this->olympBlue, $this->olympGreen, $this->olympRed);
 
         $cmd = sprintf($cmdTemplate, escapeshellarg(implode(",", $channelValues)));
 

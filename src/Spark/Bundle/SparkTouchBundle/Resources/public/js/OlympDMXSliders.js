@@ -16,7 +16,6 @@ Ext.define('Spark.Sliderfield', {
 
     },
     onChange: function (me, sl, thumb, newValue, oldValue, eOpts) {
-        console.log(newValue);
         Ext.Ajax.request({
             url: this.config.uri + '/'+this.config.type+'/'+newValue,
 
