@@ -1,10 +1,13 @@
 Ext.define('Spark.Sliderfield', {
     extend: 'Ext.field.Slider',
 
-    minValue: 0,
-    maxValue: 255,
-    type: 'r',
-    uri: 'olymp/set',
+    config: {
+        minValue: 0,
+        maxValue: 255,
+
+        type: 'r',
+        uri: 'olymp/set'
+    },
 
     constructor: function () {
         this.on("change", this.onChange);
@@ -15,7 +18,7 @@ Ext.define('Spark.Sliderfield', {
     onChange: function (me, sl, thumb, newValue, oldValue, eOpts) {
         console.log(newValue);
         Ext.Ajax.request({
-            url: this.uri + '/'+this.type+'/'+newValue,
+            url: this.config.uri + '/'+this.config.type+'/'+newValue,
 
             success: function(response){
                 var text = response.responseText;
