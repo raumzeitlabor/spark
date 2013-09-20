@@ -82,7 +82,7 @@ Ext.application({
                 this.blue.setValue(responseObj.data.blue);
             }
         });
-        
+
         Ext.util.repeat('task1', function () {
                 Ext.Ajax.request({
                     url: 'olymp/get',
@@ -97,7 +97,7 @@ Ext.application({
                     }
                 });
         }.bind(this),
-        10000
+        2000
 
         );
     }
