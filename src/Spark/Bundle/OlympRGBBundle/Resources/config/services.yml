@@ -1,4 +1,4 @@
 services:
   olymp.setrgb.service:
       class: Spark\Bundle\OlympRGBBundle\Service\OlympDMXService
-      arguments: [ @doctrine.orm.entity_manager, @old_sound_rabbit_mq.olymp_dmx_rpc ]
+      arguments: [ @old_sound_rabbit_mq.olymp_dmx_rpc ]

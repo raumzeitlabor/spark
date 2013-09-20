@@ -12,11 +12,6 @@ use OldSound\RabbitMqBundle\RabbitMq\Producer;
  */
 class OlympDMXService {
     /**
-     * @var \Doctrine\ORM\EntityManager
-     */
-    private $entityManager;
-
-    /**
      * Holds the producer to push to the RabbitMq queue
      *
      * @var \OldSound\RabbitMqBundle\RabbitMq\Producer
@@ -29,10 +24,9 @@ class OlympDMXService {
      * @param EntityManager   $entityManager
      * @param Producer        $producer
      */
-    public function __construct(EntityManager $entityManager, $olympDMXRPC)
+    public function __construct($olympDMXRPC)
     {
         $this->olympDMXRPC = $olympDMXRPC;
-        $this->entityManager = $entityManager;
     }
 
     /**
