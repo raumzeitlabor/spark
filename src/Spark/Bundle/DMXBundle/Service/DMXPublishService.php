@@ -42,19 +42,44 @@ class DMXPublishService implements ConsumerInterface {
 
     public function execute(AMQPMessage $msg)
     {
-
         $data = unserialize($msg->body);
 
+        switch ($data["mode"]) {
+            case 'set':
+                $return = $this->setRGB($data);
+                 break;
+            case 'get':
+                $return = $this->getRGB();
+                break;
+        }
+
+        return $return;
+    }
+
+    /**
+     * Returns the current RGB state
+     * @return array
+     */
+    public function getRGB () {
+        return array('red' => $this->olympRed, 'green' => $this->olympGreen, 'blue' => $this->olympBlue);
+    }
+
+    /**
+     * Sets the RGB state
+     * @param $data
+     * @return arrayS
+     */
+    public function setRGB ($data) {
         if (array_key_exists('red', $data) && $data['red'] !== false) {
-            $this->olympRed = $data['red'];
+            $this->olympRed = intval($data['red']);
         }
 
         if (array_key_exists('green', $data) && $data['green'] !== false) {
-            $this->olympGreen = $data['green'];
+            $this->olympGreen = intval($data['green']);
         }
 
         if (array_key_exists('blue', $data) && $data['blue'] !== false) {
-            $this->olympBlue = $data['blue'];
+            $this->olympBlue = intval($data['blue']);
         }
 
         $cmdTemplate = 'ola_set_dmx -u 0 --dmx %s';
@@ -67,6 +92,6 @@ class DMXPublishService implements ConsumerInterface {
 
         exec($cmd);
 
-        return array(123);
+        return $this->getRGB();
     }
 }

@@ -23,8 +23,7 @@ class DefaultController extends FOSRestController
      */
     public function setRedAction ($value)
     {
-        $this->get("olymp.setrgb.service")->setRGB($value, false, false);
-        return array();
+        return $this->get("olymp.setrgb.service")->setRGB($value, false, false);
     }
 
     /**
@@ -34,8 +33,7 @@ class DefaultController extends FOSRestController
      */
     public function setGreenAction ($value)
     {
-        $this->get("olymp.setrgb.service")->setRGB(false, $value, false);
-        return array();
+        return $this->get("olymp.setrgb.service")->setRGB(false, $value, false);
     }
 
     /**
@@ -45,8 +43,15 @@ class DefaultController extends FOSRestController
      */
     public function setBlueAction ($value)
     {
-        $this->get("olymp.setrgb.service")->setRGB(false, false, $value);
+        return $this->get("olymp.setrgb.service")->setRGB(false, false, $value);
+    }
 
-        return array();
+    /**
+     * @Route("/olymp/get", defaults={"method" = "get", "_format" = "json"})
+     * @Route("/olymp/get/", defaults={"method" = "get", "_format" = "json"})
+     * @ApiDoc(description="Returns the RGB values")
+     */
+    public function getRGB () {
+        return $this->get("olymp.setrgb.service")->getRGB();
     }
 }

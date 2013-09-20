@@ -48,8 +48,22 @@ class OlympDMXService {
         $this->validateColor($green, "green");
         $this->validateColor($blue, "blue");
 
-        $this->olympDMXRPC->addRequest(serialize(array('red' => $red, 'green' => $green, 'blue' => $blue)), 'dmx_publish', 'request_id');
+        $this->olympDMXRPC->addRequest(serialize(array('mode' => 'set', 'red' => $red, 'green' => $green, 'blue' => $blue)), 'dmx_publish', 'data');
         $replies = $this->olympDMXRPC->getReplies();
+
+        return $replies;
+    }
+
+    /**
+     * Returns the current RGB state
+     *
+     * @return mixed
+     */
+    public function getRGB () {
+        $this->olympDMXRPC->addRequest(serialize(array('mode' => 'get')), 'dmx_publish', 'data');
+        $replies = $this->olympDMXRPC->getReplies();
+
+        return $replies;
     }
 
     /**
