@@ -1,0 +1,4 @@
+services:
+    spark.lichtsteuerung:
+        class: Spark\Bundle\Lichtsteuerung\Service\LichtsteuerungService
+        arguments: [ @logger ]

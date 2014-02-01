@@ -1,3 +1,8 @@
+spark_lichtsteuerung:
+    resource: "@SparkLichtsteuerungBundle/Controller/"
+    type:     annotation
+    prefix:   /
+
 spark_spark_touch:
     resource: "@SparkSparkTouchBundle/Resources/config/routing.yml"
     prefix:   /

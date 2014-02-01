@@ -22,6 +22,7 @@ class AppKernel extends Kernel
             new OldSound\RabbitMqBundle\OldSoundRabbitMqBundle(),
             new Spark\Bundle\DMXBundle\SparkDMXBundle(),
             new Spark\Bundle\SparkTouchBundle\SparkSparkTouchBundle(),
+            new Spark\Bundle\LichtsteuerungBundle\SparkLichtsteuerungBundle(),
         );
 
         if (in_array($this->getEnvironment(), array('dev', 'test'))) {
