@@ -16,9 +16,6 @@ class RDMClientService
      */
     private $clients = array();
 
-    const SLOTS = 32;
-
-
     public function __construct(
         LoggerInterface $logger = null
     ) {
@@ -45,6 +42,7 @@ class RDMClientService
             } else {
                 $this->clients[$uid] = new LightControllerClient($uid);
 
+                $this->applyDeviceInfo($this->clients[$uid]);
                 $this->applyDMXStartAddress($this->clients[$uid]);
                 $this->applyDeviceLabel($this->clients[$uid]);
 
@@ -67,6 +65,22 @@ class RDMClientService
         }
 
         $this->logger->info(sprintf("Device discovery finished. Found %s device(s)", count($this->clients)));
+    }
+
+    public function applyDeviceInfo(RDMClient $client)
+    {
+        $command = $this->getCommandTemplate($client);
+        $command .= "device_info";
+
+        exec($command, $output);
+
+        foreach ($output as $line) {
+            if (strpos($line, "DMX Footprint") !== false) {
+                $footprint = str_replace("DMX Footprint:", "", $line);
+                $footprint = intval(trim($footprint));
+                $client->setDMXFootprint($footprint);
+            }
+        }
     }
 
     public function applyDMXStartAddress(RDMClient $client)
@@ -104,7 +118,7 @@ class RDMClientService
      */
     public function applySlotNames(RDMClient $client)
     {
-        for ($i = 0; $i < self::SLOTS; $i++) {
+        for ($i = 0; $i < $client->getDMXFootprint(); $i++) {
             $command = $this->getCommandTemplate($client);
             $command .= "slot_description " . escapeshellarg($i);
 
@@ -129,7 +143,7 @@ class RDMClientService
         $this->logger->debug("Executing command " . $command);
         exec($command, $output);
 
-        for ($i = 0; $i < self::SLOTS; $i++) {
+        for ($i = 0; $i < $client->getDMXFootprint(); $i++) {
             $lineNum = ($i * 4) + 2;
 
             $slotValue = str_replace("Default Slot Value:", "", $output[$lineNum]);

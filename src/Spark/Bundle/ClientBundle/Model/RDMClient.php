@@ -38,6 +38,12 @@ abstract class RDMClient
      */
     private $slotValues = array();
 
+    /**
+     * The device DMX footprint (=number of channels)
+     *
+     * @var int
+     */
+    private $dmxFootprint = 0;
 
     public function __construct($uid)
     {
@@ -97,5 +103,25 @@ abstract class RDMClient
     public function getSlotValues()
     {
         return $this->slotValues;
+    }
+
+    /**
+     * Returns the DMX footprint (=number of channels)
+     *
+     * @return int
+     */
+    public function getDMXFootprint()
+    {
+        return $this->dmxFootprint;
+    }
+
+    /**
+     * Sets the DMX footprint (=number of channels)
+     *
+     * @param $channels
+     */
+    public function setDMXFootprint($channels)
+    {
+        $this->dmxFootprint = $channels;
     }
 }
