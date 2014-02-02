@@ -1,0 +1,4 @@
+services:
+    spark.lichtsteuerung:
+        class: Spark\Bundle\ClientBundle\Service\RDMClientService
+        arguments: [ @logger ]
