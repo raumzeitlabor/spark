@@ -1,6 +1,13 @@
 <?php
 namespace Spark\Bundle\ClientBundle\Model;
 
+/**
+ * Class RDMClient
+ *
+ * Represents an RDM device within the network
+ *
+ * @package Spark\Bundle\ClientBundle\Model
+ */
 abstract class RDMClient
 {
     /**
