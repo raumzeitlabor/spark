@@ -62,6 +62,10 @@ abstract class RDMClient
         $this->dmxStartAddress = $startAddress;
     }
 
+    public function getDMXStartAddress () {
+        return $this->dmxStartAddress;
+    }
+
     public function getUID()
     {
         return $this->uid;

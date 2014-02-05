@@ -11,6 +11,7 @@ class RDMClientService
 
     private $logger;
 
+    private $jsonAPIURI = "http://localhost:9090/";
     /**
      * @var RDMClient[]
      */
@@ -28,6 +29,7 @@ class RDMClientService
     public function discovery()
     {
         $this->logger->info("Device discovery started");
+        $this->interruptDMXTransmit();
         $this->clients = array();
 
         $command = "ola_rdm_discover -u " . escapeshellarg($this->universe) . " -f";
@@ -42,9 +44,8 @@ class RDMClientService
             } else {
                 $this->clients[$uid] = new LightControllerClient($uid);
 
-                $this->applyDeviceInfo($this->clients[$uid]);
-                $this->applyDMXStartAddress($this->clients[$uid]);
                 $this->applyDeviceLabel($this->clients[$uid]);
+                $this->applyDeviceInfo($this->clients[$uid]);
 
                 $this->applySlotNames($this->clients[$uid]);
                 $this->applyDefaultSlotValues($this->clients[$uid]);
@@ -62,6 +63,7 @@ class RDMClientService
                     )
                 );
             }
+
         }
 
         $this->logger->info(sprintf("Device discovery finished. Found %s device(s)", count($this->clients)));
@@ -69,35 +71,12 @@ class RDMClientService
 
     public function applyDeviceInfo(RDMClient $client)
     {
-        $command = $this->getCommandTemplate($client);
-        $command .= "device_info";
+        $uri = $this->jsonAPIURI . "json/rdm/uid_info?id=" . $this->universe."&uid=".$client->getUID();
 
-        exec($command, $output);
+        $json = json_decode(file_get_contents($uri));
 
-        foreach ($output as $line) {
-            if (strpos($line, "DMX Footprint") !== false) {
-                $footprint = str_replace("DMX Footprint:", "", $line);
-                $footprint = intval(trim($footprint));
-                $client->setDMXFootprint($footprint);
-            }
-        }
-    }
-
-    public function applyDMXStartAddress(RDMClient $client)
-    {
-        $command = $this->getCommandTemplate($client);
-
-        $command .= "dmx_start_address";
-
-        $this->logger->debug("Executing command " . $command);
-        $dmxStartAddress = shell_exec($command);
-
-        // This is a bit ugly, and will probably break if e.g. another locale is set
-        // Unfortunately, ola_rdm_get doesn't return a nicely parseable format
-
-        $dmxStartAddress = str_replace("DMX Address: ", "", $dmxStartAddress);
-
-        $client->setDMXStartAddress($dmxStartAddress);
+        $client->setDMXFootprint($json->footprint);
+        $client->setDMXStartAddress($json->address);
     }
 
     public function applyDeviceLabel(RDMClient $client)
@@ -110,6 +89,7 @@ class RDMClientService
 
         $client->setDeviceLabel(trim($label));
     }
+
 
     /**
      * Applies the slot names as reported by the device
@@ -143,23 +123,14 @@ class RDMClientService
         $this->logger->debug("Executing command " . $command);
         exec($command, $output);
 
-        for ($i = 0; $i < $client->getDMXFootprint(); $i++) {
-            $lineNum = ($i * 4) + 2;
+        for ($i = 0; $i < count($output); $i+=4) {
+            $slotOffset = trim(str_replace("Slot Offset:", "", $output[$i+1]));
+            $slotValue = trim(str_replace("Default Slot Value:", "", $output[$i+2]));
 
-            $slotValue = str_replace("Default Slot Value:", "", $output[$lineNum]);
-            $slotValue = trim($slotValue);
-
-            $client->setSlotValue($i, $slotValue);
+            $client->setSlotValue($slotOffset, $slotValue);
         }
     }
 
-    /**
-     * Returns a pre-filled ola_rdm_get string which includes the universe and uid of the RDM device.
-     *
-     * @param RDMClient $client
-     *
-     * @return string
-     */
     public function getCommandTemplate(RDMClient $client)
     {
         $command = "ola_rdm_get --uid " . escapeshellarg($client->getUID()) . " -u " . escapeshellarg(
@@ -168,4 +139,30 @@ class RDMClientService
 
         return $command;
     }
+
+    public function getDMXValues()
+    {
+        $dmxChannelMap = array();
+
+        foreach ($this->clients as $client) {
+            $slots = $client->getSlotValues();
+
+            foreach ($slots as $offset => $slotValue) {
+                $dmxChannelMap[$client->getDMXStartAddress() + $offset] = $slotValue;
+            }
+        }
+
+        return $dmxChannelMap;
+    }
+
+    /**
+     * This is a workaround for OLA in conjunction with the USBDMX Pro interface. The interface can't transmit
+     * DMX and RDM at the same time, and OLA fails to stop the DMX stream when doing an RDM command. To avoid problems,
+     * we simply trigger a full discovery.
+     */
+    public function interruptDMXTransmit () {
+        $command = "ola_rdm_discover -u " . escapeshellarg($this->universe) . " -f";
+        exec($command, $output);
+    }
+
 }
