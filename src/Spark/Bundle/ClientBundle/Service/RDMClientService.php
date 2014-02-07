@@ -12,6 +12,7 @@ class RDMClientService
     private $logger;
 
     private $jsonAPIURI = "http://localhost:9090/";
+
     /**
      * @var RDMClient[]
      */
@@ -69,9 +70,17 @@ class RDMClientService
         $this->logger->info(sprintf("Device discovery finished. Found %s device(s)", count($this->clients)));
     }
 
+    public function updateDMXSlots()
+    {
+        $this->interruptDMXTransmit();
+        foreach ($this->clients as $client) {
+            $this->applyDefaultSlotValues($client);
+        }
+    }
+
     public function applyDeviceInfo(RDMClient $client)
     {
-        $uri = $this->jsonAPIURI . "json/rdm/uid_info?id=" . $this->universe."&uid=".$client->getUID();
+        $uri = $this->jsonAPIURI . "json/rdm/uid_info?id=" . $this->universe . "&uid=" . $client->getUID();
 
         $json = json_decode(file_get_contents($uri));
 
@@ -123,12 +132,19 @@ class RDMClientService
         $this->logger->debug("Executing command " . $command);
         exec($command, $output);
 
-        for ($i = 0; $i < count($output); $i+=4) {
-            $slotOffset = trim(str_replace("Slot Offset:", "", $output[$i+1]));
-            $slotValue = trim(str_replace("Default Slot Value:", "", $output[$i+2]));
+        $debugValues = array();
+
+        for ($i = 0; $i < count($output); $i += 4) {
+            $slotOffset = trim(str_replace("Slot Offset:", "", $output[$i + 1]));
+            $slotValue = trim(str_replace("Default Slot Value:", "", $output[$i + 2]));
+
+            $debugValues[$slotOffset] = $slotValue;
 
             $client->setSlotValue($slotOffset, $slotValue);
         }
+
+        ksort($debugValues);
+        $this->logger->debug(sprintf("Got DMX values %s", implode(",", $debugValues)));
     }
 
     public function getCommandTemplate(RDMClient $client)
@@ -158,11 +174,39 @@ class RDMClientService
     /**
      * This is a workaround for OLA in conjunction with the USBDMX Pro interface. The interface can't transmit
      * DMX and RDM at the same time, and OLA fails to stop the DMX stream when doing an RDM command. To avoid problems,
-     * we simply trigger a full discovery.
+     * we simply trigger a full discovery twice (first one will fail, second one ensures that devices aren't thrown out
+     * of OLA)..
      */
-    public function interruptDMXTransmit () {
+    public function interruptDMXTransmit()
+    {
         $command = "ola_rdm_discover -u " . escapeshellarg($this->universe) . " -f";
         exec($command, $output);
+        exec($command, $output);
+    }
+
+    public function getClients()
+    {
+        return $this->clients;
+    }
+
+    public function hasDMXChannel($channel)
+    {
+        foreach ($this->clients as $client) {
+            if ($client->hasChannel($channel)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function setDMXChannelValue($channel, $value)
+    {
+        foreach ($this->clients as $client) {
+            if ($client->hasChannel($channel)) {
+                $client->setChannelValue($channel, $value);
+            }
+        }
     }
 
 }

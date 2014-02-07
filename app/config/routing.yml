@@ -1,15 +1,10 @@
-spark_lichtsteuerung:
-    resource: "@SparkLichtsteuerungBundle/Controller/"
+spark_web:
+    resource: "@SparkWebBundle/Controller/"
     type:     annotation
     prefix:   /
 
 spark_spark_touch:
     resource: "@SparkSparkTouchBundle/Resources/config/routing.yml"
-    prefix:   /
-
-spark_olymp_rgb:
-    resource: "@SparkOlympRGBBundle/Controller/"
-    type:     annotation
     prefix:   /
 
 NelmioApiDocBundle:

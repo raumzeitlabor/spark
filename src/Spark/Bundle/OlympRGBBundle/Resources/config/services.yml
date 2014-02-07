@@ -1,4 +1,0 @@
-services:
-  olymp.setrgb.service:
-      class: Spark\Bundle\OlympRGBBundle\Service\OlympDMXService
-      arguments: [ @old_sound_rabbit_mq.olymp_dmx_rpc ]

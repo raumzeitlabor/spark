@@ -62,7 +62,8 @@ abstract class RDMClient
         $this->dmxStartAddress = $startAddress;
     }
 
-    public function getDMXStartAddress () {
+    public function getDMXStartAddress()
+    {
         return $this->dmxStartAddress;
     }
 
@@ -134,5 +135,26 @@ abstract class RDMClient
     public function setDMXFootprint($channels)
     {
         $this->dmxFootprint = $channels;
+    }
+
+    public function hasChannel($channel)
+    {
+        $start = $this->getDMXStartAddress();
+        $end = $start + $this->getDMXFootprint();
+
+        if ($channel >= $start && $channel <= $end) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public function setChannelValue($channel, $value)
+    {
+        if (!$this->hasChannel($channel)) {
+            return false;
+        }
+
+        $this->slotValues[$channel - $this->dmxStartAddress] = $value;
     }
 }

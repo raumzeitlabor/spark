@@ -1,4 +1,4 @@
 services:
     spark.dmx.publish:
-        class: Spark\Bundle\DMXBundle\Service\DMXPublishService
+        class: Spark\Bundle\DMXBundle\Service\DMXService
         arguments: [ @logger ]

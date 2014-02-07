@@ -1,0 +1,4 @@
+services:
+  dmxservice:
+      class: Spark\Bundle\WebBundle\Service\DMXPublisherService
+      arguments: [ @old_sound_rabbit_mq.spark_web_rpc ]

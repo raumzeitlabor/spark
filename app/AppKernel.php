@@ -15,7 +15,6 @@ class AppKernel extends Kernel
             new Symfony\Bundle\SwiftmailerBundle\SwiftmailerBundle(),
             new Symfony\Bundle\AsseticBundle\AsseticBundle(),
             new Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle(),
-            new Spark\Bundle\OlympRGBBundle\SparkOlympRGBBundle(),
             new Nelmio\ApiDocBundle\NelmioApiDocBundle(),
             new FOS\RestBundle\FOSRestBundle(),
             new JMS\SerializerBundle\JMSSerializerBundle(),
@@ -23,6 +22,7 @@ class AppKernel extends Kernel
             new Spark\Bundle\DMXBundle\SparkDMXBundle(),
             new Spark\Bundle\SparkTouchBundle\SparkSparkTouchBundle(),
             new Spark\Bundle\ClientBundle\SparkClientBundle(),
+            new Spark\Bundle\WebBundle\SparkWebBundle(),
         );
 
         if (in_array($this->getEnvironment(), array('dev', 'test'))) {
