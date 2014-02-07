@@ -202,6 +202,7 @@ class RDMClientService
 
     public function setDMXChannelValue($channel, $value)
     {
+        $value = intval($value);
         foreach ($this->clients as $client) {
             if ($client->hasChannel($channel)) {
                 $client->setChannelValue($channel, $value);
