@@ -30,7 +30,6 @@ class RDMClientService
     public function discovery()
     {
         $this->logger->info("Device discovery started");
-        $this->interruptDMXTransmit();
         $this->clients = array();
 
         $command = "ola_rdm_discover -u " . escapeshellarg($this->universe) . " -f";
@@ -108,14 +107,20 @@ class RDMClientService
     public function applySlotNames(RDMClient $client)
     {
         for ($i = 0; $i < $client->getDMXFootprint(); $i++) {
+            $output = array();
+
             $command = $this->getCommandTemplate($client);
             $command .= "slot_description " . escapeshellarg($i);
 
             $this->logger->debug("Executing command " . $command);
             exec($command, $output);
 
-            $label = str_replace("Name: ", "", $output[1]);
-            $client->setSlotName($i, $label);
+            if (stripos($output[0], "NACKed") === false) {
+                $label = str_replace("Name: ", "", $output[1]);
+                $client->setSlotName($i, $label);
+            } else {
+                $client->setSlotName($i, "Output ".$i+1);
+            }
         }
     }
 
@@ -134,13 +139,15 @@ class RDMClientService
 
         $debugValues = array();
 
-        for ($i = 0; $i < count($output); $i += 4) {
-            $slotOffset = trim(str_replace("Slot Offset:", "", $output[$i + 1]));
-            $slotValue = trim(str_replace("Default Slot Value:", "", $output[$i + 2]));
+        if (stripos($output[0], "NACKed") === false) {
+            for ($i = 0; $i < count($output); $i += 4) {
+                $slotOffset = trim(str_replace("Slot Offset:", "", $output[$i + 1]));
+                $slotValue = trim(str_replace("Default Slot Value:", "", $output[$i + 2]));
 
-            $debugValues[$slotOffset] = $slotValue;
+                $debugValues[$slotOffset] = $slotValue;
 
-            $client->setSlotValue($slotOffset, $slotValue);
+                $client->setSlotValue($slotOffset, $slotValue);
+            }
         }
 
         ksort($debugValues);
@@ -169,19 +176,6 @@ class RDMClientService
         }
 
         return $dmxChannelMap;
-    }
-
-    /**
-     * This is a workaround for OLA in conjunction with the USBDMX Pro interface. The interface can't transmit
-     * DMX and RDM at the same time, and OLA fails to stop the DMX stream when doing an RDM command. To avoid problems,
-     * we simply trigger a full discovery twice (first one will fail, second one ensures that devices aren't thrown out
-     * of OLA)..
-     */
-    public function interruptDMXTransmit()
-    {
-        $command = "ola_rdm_discover -u " . escapeshellarg($this->universe) . " -f";
-        exec($command, $output);
-        exec($command, $output);
     }
 
     public function getClients()
